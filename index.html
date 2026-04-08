@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>人体の構造と機能 — 問題演習</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f0;color:#1a1a1a;min-height:100vh;padding:1rem;}
+.app{max-width:700px;margin:0 auto;padding:1rem 0;}
+.app-header{margin-bottom:1.25rem;}
+.app-header h1{font-size:20px;font-weight:500;}
+.app-header p{font-size:13px;color:#666;margin-top:3px;}
+.unit-label{font-size:12px;font-weight:500;color:#666;text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px;}
+.unit-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:6px;margin-bottom:1.25rem;}
+.u-btn{padding:8px 10px;border-radius:8px;border:1px solid #ddd;background:#fff;color:#1a1a1a;font-size:12px;cursor:pointer;text-align:left;}
+.u-btn:hover{background:#f5f5f0;}
+.u-btn.active{background:#e6f1fb;border-color:#85b7eb;color:#185fa5;}
+.u-btn.done-high{background:#eaf3de;border-color:#97c459;color:#3b6d11;}
+.u-btn.done-low{background:#faeeda;border-color:#fac775;color:#633806;}
+.u-num{font-size:10px;color:#999;display:block;margin-bottom:2px;}
+.u-btn.active .u-num{color:#185fa5;}
+.u-btn.done-high .u-num{color:#3b6d11;}
+.u-btn.done-low .u-num{color:#633806;}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem;}
+.metric{background:#ebebeb;border-radius:8px;padding:.75rem 1rem;}
+.metric-label{font-size:12px;color:#666;}
+.metric-value{font-size:22px;font-weight:500;margin-top:2px;}
+.prog-bg{height:4px;background:#ddd;border-radius:2px;margin-bottom:1.25rem;}
+.prog-fill{height:4px;background:#1d9e75;border-radius:2px;transition:width .4s;}
+.q-card{background:#fff;border:1px solid #e0e0e0;border-radius:12px;padding:1.25rem;margin-bottom:1rem;}
+.u-tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:8px;background:#e6f1fb;color:#185fa5;margin-bottom:8px;}
+.q-meta{font-size:12px;color:#666;margin-bottom:6px;}
+.q-text{font-size:15px;font-weight:500;line-height:1.6;}
+.opts{display:flex;flex-direction:column;gap:8px;margin-top:1rem;}
+.o-btn{background:#fff;border:1px solid #ddd;border-radius:8px;padding:.75rem 1rem;font-size:14px;cursor:pointer;text-align:left;display:flex;gap:10px;align-items:flex-start;}
+.o-btn:hover:not(:disabled){background:#f5f5f0;}
+.o-btn.correct{background:#eaf3de;border-color:#639922;color:#3b6d11;}
+.o-btn.wrong{background:#fcebeb;border-color:#a32d2d;color:#791f1f;}
+.o-btn.reveal{background:#eaf3de;border-color:#639922;color:#3b6d11;opacity:.7;}
+.o-lbl{font-weight:500;min-width:18px;}
+.fb{border-radius:8px;padding:1rem 1.25rem;margin-top:1rem;font-size:14px;line-height:1.6;}
+.fb.correct{background:#eaf3de;color:#27500a;border:1px solid #97c459;}
+.fb.wrong{background:#fcebeb;color:#501313;border:1px solid #f09595;}
+.fb-t{font-weight:500;margin-bottom:4px;}
+.nxt-btn{width:100%;padding:.75rem;border-radius:8px;border:1px solid #ddd;background:#fff;font-size:14px;cursor:pointer;margin-top:1rem;}
+.nxt-btn:hover{background:#f5f5f0;}
+.res-card{background:#fff;border:1px solid #e0e0e0;border-radius:12px;padding:2rem;text-align:center;}
+.res-score{font-size:48px;font-weight:500;color:#1d9e75;}
+.res-sub{font-size:14px;color:#666;margin-top:4px;}
+.res-msg{font-size:14px;margin:1rem 0;line-height:1.6;}
+.res-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:1rem;}
+.res-btn{padding:.6rem 1.25rem;border-radius:8px;border:1px solid #ddd;background:#fff;font-size:13px;cursor:pointer;}
+.res-btn:hover{background:#f5f5f0;}
+.empty{padding:2rem;text-align:center;color:#666;font-size:14px;line-height:1.8;}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="app-header">
+    <h1>人体の構造と機能 — 問題演習</h1>
+    <p>看護師国家試験出題基準 目標Ⅰ・Ⅱ 対応 / 全80問</p>
+  </div>
+  <div class="unit-label">単元を選択（全16単元）</div>
+  <div class="unit-grid" id="unit-grid"></div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">正解数</div><div class="metric-value" id="m-c">0</div></div>
+    <div class="metric"><div class="metric-label">回答数</div><div class="metric-value" id="m-t">0</div></div>
+    <div class="metric"><div class="metric-label">正答率</div><div class="metric-value" id="m-r">—</div></div>
+  </div>
+  <div class="prog-bg"><div class="prog-fill" id="prog" style="width:0%"></div></div>
+  <div id="qa"></div>
+</div>
+<script>
+const U=[
+  {n:"細胞・組織",qs:[
+    {t:"細胞膜の主な構成成分として正しいのはどれか。",o:["タンパク質のみ","リン脂質二重層とタンパク質","核酸とグルコース","コラーゲンと脂肪"],a:1,e:"細胞膜はリン脂質二重層を基本構造とし、膜タンパク質が埋め込まれた構造です。"},
+    {t:"DNAからタンパク質が合成される過程の正しい順序はどれか。",o:["翻訳→転写","転写→翻訳","複製→転写のみ","転写→複製→翻訳"],a:1,e:"DNA→（転写）→mRNA→（翻訳）→タンパク質の順です。"},
+    {t:"上皮組織の特徴として正しいのはどれか。",o:["血管が豊富に分布する","細胞間質が多い","体の表面や管腔を覆う","収縮性がある"],a:2,e:"上皮組織は体表面・管腔内面・腺を構成します。血管は分布しません。"},
+    {t:"ミトコンドリアの主な機能はどれか。",o:["タンパク質の合成","ATPの産生","脂質の貯蔵","DNAの複製"],a:1,e:"ミトコンドリアは酸化的リン酸化によりATPを産生する細胞のエネルギー工場です。"},
+    {t:"細胞周期でDNA複製が行われる時期はどれか。",o:["M期","G1期","S期","G2期"],a:2,e:"S期（DNA合成期）にDNA複製が起こります。M期は分裂期です。"},
+  ]},
+  {n:"生体リズムと恒常性",qs:[
+    {t:"サーカディアンリズムの周期として正しいのはどれか。",o:["約12時間","約24時間","約48時間","約72時間"],a:1,e:"サーカディアンリズムは約24時間周期の生体リズムで、睡眠・体温・ホルモン分泌などを調節します。"},
+    {t:"体内時計の中枢として正しいのはどれか。",o:["松果体","視交叉上核","海馬","延髄"],a:1,e:"視床下部の視交叉上核（SCN）が体内時計の中枢です。光刺激でリセットされます。"},
+    {t:"恒常性維持に最も関わるフィードバック機構はどれか。",o:["正のフィードバック","負のフィードバック","前向きフィードバック","フィードバックなし"],a:1,e:"体温・血糖・血圧などは主に負のフィードバックで調節され、逸脱を元に戻す方向に働きます。"},
+    {t:"細胞外液の主要陽イオンはどれか。",o:["K⁺","Ca²⁺","Na⁺","Mg²⁺"],a:2,e:"細胞外液の主要陽イオンはNa⁺です。細胞内液の主要陽イオンはK⁺です。"},
+    {t:"体温調節中枢はどこにあるか。",o:["大脳皮質","小脳","視床下部","脳幹"],a:2,e:"体温調節中枢は視床下部にあり、発汗・ふるえ・皮膚血流などを調節します。"},
+  ]},
+  {n:"運動系",qs:[
+    {t:"骨の主な無機成分として正しいのはどれか。",o:["コラーゲン","ハイドロキシアパタイト","ケラチン","エラスチン"],a:1,e:"骨の無機成分の主体はハイドロキシアパタイト（リン酸カルシウム）です。有機成分の主体はコラーゲンです。"},
+    {t:"骨格筋の収縮に直接関わるイオンはどれか。",o:["Na⁺","K⁺","Ca²⁺","Mg²⁺"],a:2,e:"筋小胞体からCa²⁺が放出されることでアクチン・ミオシンが結合し筋収縮が起こります。"},
+    {t:"脊柱の頸椎の数として正しいのはどれか。",o:["5個","6個","7個","8個"],a:2,e:"頸椎は7個、胸椎12個、腰椎5個です。"},
+    {t:"関節可動域（ROM）について正しいのはどれか。",o:["加齢で増大する","関節が動ける角度の範囲である","筋力と無関係である","自動運動のみで測定する"],a:1,e:"ROMは関節が動ける角度の範囲です。加齢・疾患・不動で低下します。"},
+    {t:"骨粗鬆症の主な原因として正しいのはどれか。",o:["骨形成の増加","骨密度の増加","骨形成より骨吸収が上回る","カルシウム過剰摂取"],a:2,e:"骨粗鬆症は骨吸収が骨形成を上回り骨密度が低下した状態で、骨折リスクが増大します。"},
+  ]},
+  {n:"神経系",qs:[
+    {t:"一次運動野の位置として正しいのはどれか。",o:["後頭葉","頭頂葉","前頭葉中心前回","側頭葉"],a:2,e:"随意運動を支配する一次運動野は前頭葉の中心前回にあります。"},
+    {t:"交感神経の作用として正しいのはどれか。",o:["心拍数を減少させる","瞳孔を縮小させる","瞳孔を散大させる","消化管運動を促進する"],a:2,e:"交感神経（闘争・逃走）は瞳孔散大・心拍増加・消化抑制をもたらします。"},
+    {t:"髄鞘（ミエリン鞘）の主な機能はどれか。",o:["栄養の供給","跳躍伝導による伝導速度の増加","シナプス小胞の産生","免疫機能"],a:1,e:"髄鞘はランビエ絞輪間の跳躍伝導を可能にし神経伝導速度を増加させます。"},
+    {t:"脳神経の数として正しいのはどれか。",o:["10対","12対","14対","8対"],a:1,e:"脳神経は12対（嗅・視・動眼・滑車・三叉・外転・顔面・内耳・舌咽・迷走・副・舌下）です。"},
+    {t:"膝蓋腱反射に関わる脊髄レベルはどれか。",o:["C5・C6","T1・T2","L3・L4","S1・S2"],a:2,e:"膝蓋腱反射はL3・L4レベルの脊髄反射（伸張反射）です。"},
+  ]},
+  {n:"感覚器系",qs:[
+    {t:"視覚の伝導路の正しい順序はどれか。",o:["網膜→視神経→視交叉→外側膝状体→視覚野","網膜→視交叉→視神経→外側膝状体→視覚野","角膜→視神経→視交叉→視覚野→外側膝状体","網膜→外側膝状体→視交叉→視神経→視覚野"],a:0,e:"視覚路：網膜→視神経→視交叉→視索→外側膝状体→視放線→一次視覚野（後頭葉）です。"},
+    {t:"音の振動を電気信号に変換する細胞はどれか。",o:["蝸牛管の有毛細胞","半規管の有毛細胞","鼓膜","耳小骨"],a:0,e:"蝸牛管コルチ器の有毛細胞が音の振動を電気信号に変換します。"},
+    {t:"平衡感覚に関わる器官はどれか。",o:["蝸牛","半規管と耳石器","鼓膜","耳管"],a:1,e:"平衡感覚は内耳の半規管（回転加速度）と耳石器（重力・直線加速度）で感知されます。"},
+    {t:"皮膚の痛覚受容器として正しいのはどれか。",o:["マイスネル小体","パチニ小体","自由神経終末","ルフィニ終末"],a:2,e:"痛覚（侵害受容）は主に自由神経終末が担います。マイスネル小体は触覚、パチニ小体は振動覚です。"},
+    {t:"味覚の基本5味に含まれないのはどれか。",o:["甘味","辛味","苦味","うま味"],a:1,e:"基本5味は甘味・酸味・苦味・塩味・うま味です。辛味は痛覚であり味覚ではありません。"},
+  ]},
+  {n:"循環系",qs:[
+    {t:"洞房結節から始まる刺激伝導系の正しい順序はどれか。",o:["洞房結節→房室結節→ヒス束→プルキンエ線維","洞房結節→ヒス束→房室結節→プルキンエ線維","房室結節→洞房結節→ヒス束→プルキンエ線維","洞房結節→プルキンエ線維→ヒス束→房室結節"],a:0,e:"洞房結節→房室結節→ヒス束→左右脚→プルキンエ線維の順です。"},
+    {t:"肺循環について正しいのはどれか。",o:["左心室から肺動脈へ送り出される","右心室から肺動脈へ静脈血が送り出される","肺静脈には静脈血が流れる","肺循環は大循環とも呼ばれる"],a:1,e:"右心室→肺動脈（静脈血）→肺（ガス交換）→肺静脈（動脈血）→左心房の経路です。"},
+    {t:"静脈に存在するが動脈にはない構造はどれか。",o:["弾性線維","平滑筋","逆流防止弁","内皮細胞"],a:2,e:"静脈は血圧が低く逆流しやすいため逆流防止弁（静脈弁）があります。"},
+    {t:"心拍出量の計算式として正しいのはどれか。",o:["心拍数＋一回拍出量","心拍数×一回拍出量","一回拍出量÷心拍数","心拍数−一回拍出量"],a:1,e:"心拍出量（L/分）＝心拍数×一回拍出量。安静時は約5L/分です。"},
+    {t:"門脈が運ぶ血液の特徴として正しいのはどれか。",o:["酸素が豊富","消化管で吸収した栄養素が豊富","腎臓でろ過済みの血液","動脈血"],a:1,e:"門脈は消化管からの静脈血を肝臓へ運び、グルコース・アミノ酸などの栄養素を多く含みます。"},
+  ]},
+  {n:"血液",qs:[
+    {t:"成熟赤血球の特徴として正しいのはどれか。",o:["核を持つ","ミトコンドリアが豊富","核を持たず解糖系でエネルギーを得る","リボソームが多い"],a:2,e:"成熟赤血球は脱核しており、解糖系でATPを産生します。"},
+    {t:"血小板の主な機能はどれか。",o:["酸素運搬","免疫反応","止血（血液凝固への関与）","二酸化炭素運搬"],a:2,e:"血小板は血管損傷部位に凝集して一次止血を行い、凝固カスケードも促進します。"},
+    {t:"ABO式血液型でA型の赤血球表面の抗原はどれか。",o:["B抗原","A抗原","AB抗原","H抗原のみ"],a:1,e:"A型はA抗原を持ち、抗B抗体を持ちます。O型はH抗原のみです。"},
+    {t:"線維素溶解（線溶）に関わる酵素はどれか。",o:["トロンビン","プラスミン","フィブリノゲン","第Ⅷ因子"],a:1,e:"プラスミンはフィブリン（血栓）を分解する酵素で、線溶の中心的役割を担います。"},
+    {t:"造血の主な場所（成人）として正しいのはどれか。",o:["肝臓","脾臓","赤色骨髄","胸腺"],a:2,e:"成人の造血は主に赤色骨髄（骨盤・胸骨・椎骨など）で行われます。"},
+  ]},
+  {n:"体液",qs:[
+    {t:"体液が体重に占める割合（成人男性）として正しいのはどれか。",o:["約40%","約60%","約80%","約50%"],a:1,e:"成人男性の体液は体重の約60%です。成人女性は約55%、新生児は約75%です。"},
+    {t:"細胞内液と細胞外液の比率として正しいのはどれか。",o:["1：2","2：1","1：1","3：1"],a:1,e:"体液の約2/3が細胞内液、約1/3が細胞外液です。"},
+    {t:"正常な動脈血のpHとして正しいのはどれか。",o:["7.25〜7.30","7.35〜7.45","7.50〜7.60","7.20〜7.25"],a:1,e:"正常な動脈血pHは7.35〜7.45です。7.35未満がアシドーシス、7.45超がアルカローシスです。"},
+    {t:"低ナトリウム血症の主な症状として正しいのはどれか。",o:["口渇・多飲","浮腫・高血圧","頭痛・意識障害・けいれん","高血糖"],a:2,e:"低Na血症では細胞が浮腫し、頭痛・悪心・意識障害・けいれんが起こります。"},
+    {t:"代謝性アシドーシスへの腎代償として正しいのはどれか。",o:["HCO₃⁻の排泄増加","HCO₃⁻の再吸収増加とH⁺の排泄増加","CO₂の排出増加","Na⁺の排泄増加"],a:1,e:"腎代償はHCO₃⁻再吸収増加とH⁺（NH₄⁺として）排泄増加です。"},
+  ]},
+  {n:"生体の防御機構",qs:[
+    {t:"自然免疫（非特異的防御機構）に含まれるのはどれか。",o:["T細胞による細胞性免疫","B細胞による抗体産生","好中球による食作用","メモリーT細胞"],a:2,e:"自然免疫には好中球・マクロファージによる食作用、NK細胞、補体系などが含まれます。"},
+    {t:"液性免疫の中心的な役割を担う細胞はどれか。",o:["T細胞","NK細胞","B細胞（形質細胞）","好中球"],a:2,e:"液性免疫はB細胞が形質細胞に分化して抗体を産生することで機能します。"},
+    {t:"アレルギー反応（Ⅰ型）に関わる抗体はどれか。",o:["IgG","IgA","IgE","IgM"],a:2,e:"Ⅰ型アレルギー（即時型）はIgEがマスト細胞に結合し、抗原再曝露でヒスタミン等を放出します。"},
+    {t:"胸腺の主な機能はどれか。",o:["B細胞の成熟","T細胞の分化・成熟","赤血球の産生","抗体の産生"],a:1,e:"胸腺はT細胞が分化・成熟する一次リンパ器官です。"},
+    {t:"細胞性免疫に主に関わる細胞はどれか。",o:["B細胞","形質細胞","細胞傷害性T細胞（CTL）","好酸球"],a:2,e:"細胞性免疫は細胞傷害性T細胞（CD8⁺）がウイルス感染細胞・腫瘍細胞を直接攻撃します。"},
+  ]},
+  {n:"呼吸器系",qs:[
+    {t:"肺胞でのガス交換の原理として正しいのはどれか。",o:["能動輸送","分圧差による拡散","浸透圧","ポンプ機能"],a:1,e:"肺胞と毛細血管間のガス交換は分圧差による拡散で行われます。"},
+    {t:"呼吸調節の主な中枢はどれか。",o:["大脳皮質","小脳","延髄","視床"],a:2,e:"呼吸リズムの基本的な調節中枢は延髄にあります。"},
+    {t:"肺サーファクタントの主な機能はどれか。",o:["酸素の運搬","肺胞の表面張力を低下させ虚脱を防ぐ","CO₂の排出","気道の炎症抑制"],a:1,e:"サーファクタントはⅡ型肺胞上皮細胞から分泌され、表面張力を下げて肺胞の虚脱を防ぎます。"},
+    {t:"1回換気量（安静時）の正常値として正しいのはどれか。",o:["約100mL","約500mL","約1500mL","約2000mL"],a:1,e:"安静時の1回換気量は約500mLです。"},
+    {t:"血液中でCO₂が最も多く運ばれる形態はどれか。",o:["溶解型","ヘモグロビンと結合","重炭酸イオン（HCO₃⁻）として","アルブミンと結合"],a:2,e:"CO₂の約70%は重炭酸イオン（HCO₃⁻）として血漿中に溶解して運ばれます。"},
+  ]},
+  {n:"消化器系",qs:[
+    {t:"胃酸（塩酸）を分泌する細胞はどれか。",o:["主細胞","壁細胞","G細胞","杯細胞"],a:1,e:"壁細胞が塩酸（HCl）と内因子を分泌します。主細胞はペプシノゲンを分泌します。"},
+    {t:"胆汁の主な作用はどれか。",o:["脂質を分解する","脂質を乳化して吸収を助ける","タンパク質を分解する","炭水化物を分解する"],a:1,e:"胆汁酸は脂質を乳化し、リパーゼが働きやすい状態にします。胆汁自体に消化酵素はありません。"},
+    {t:"小腸の絨毛の主な機能はどれか。",o:["消化酵素の産生","吸収面積の増大","腸液の分泌","免疫機能"],a:1,e:"小腸の絨毛・微絨毛（刷子縁）は吸収面積を増大させます（約200㎡）。"},
+    {t:"肝臓の機能として正しいのはどれか。",o:["インスリンの産生","胆汁の産生と糖・タンパク・脂質代謝","レニンの産生","造血ホルモンの産生"],a:1,e:"肝臓は胆汁産生・糖代謝・タンパク質合成・脂質代謝・解毒など多機能です。"},
+    {t:"膵臓の外分泌機能として正しいのはどれか。",o:["インスリン分泌","グルカゴン分泌","消化酵素（膵液）の分泌","ソマトスタチン分泌"],a:2,e:"膵臓の外分泌はアミラーゼ・リパーゼ・トリプシン前駆体などを含む膵液を十二指腸へ分泌します。"},
+  ]},
+  {n:"代謝",qs:[
+    {t:"基礎代謝について正しいのはどれか。",o:["食後2時間の代謝量","安静覚醒・空腹・適温環境下での最小エネルギー消費量","運動時の代謝量","睡眠中の代謝量"],a:1,e:"基礎代謝は生命維持に必要な最小エネルギー消費量で、安静覚醒・絶食・適温下で測定されます。"},
+    {t:"解糖系の最終産物として正しいのはどれか。",o:["アセチルCoA","ピルビン酸","オキサロ酢酸","クエン酸"],a:1,e:"解糖系ではグルコース→ピルビン酸が産生されます（酸素不要）。"},
+    {t:"必須アミノ酸について正しいのはどれか。",o:["体内で合成できる","食事から摂取する必要がある","エネルギー産生に使われない","すべてのアミノ酸が必須"],a:1,e:"必須アミノ酸は体内で合成できないため食事から摂取が必要です。成人では9種類です。"},
+    {t:"脂溶性ビタミンはどれか。",o:["ビタミンC","ビタミンB₁","ビタミンD","ビタミンB₁₂"],a:2,e:"脂溶性ビタミンはA・D・E・Kです。ビタミンDはカルシウム吸収を促進します。"},
+    {t:"糖新生が行われる主な臓器はどれか。",o:["骨格筋","脳","肝臓","心臓"],a:2,e:"糖新生は主に肝臓（一部腎臓）で行われ、アミノ酸・乳酸・グリセロールからグルコースを合成します。"},
+  ]},
+  {n:"泌尿器系",qs:[
+    {t:"糸球体でろ過されないものはどれか。",o:["グルコース","尿素","タンパク質（アルブミン）","Na⁺"],a:2,e:"糸球体は分子量の大きいタンパク質はろ過しません。グルコース・電解質・尿素はろ過されます。"},
+    {t:"ADH（抗利尿ホルモン）の主な作用はどれか。",o:["尿量を増加させる","集合管での水の再吸収を促進する","Na⁺の排泄を促進する","アルドステロンの分泌を抑制する"],a:1,e:"ADHは腎臓の集合管・遠位尿細管での水再吸収を促進し尿量を減少させます。"},
+    {t:"正常尿のpHとして正しいのはどれか。",o:["4.0〜5.0","4.5〜8.0（平均6.0）","8.5〜9.0","9.0〜10.0"],a:1,e:"正常尿のpHは4.5〜8.0（平均約6.0）で弱酸性です。"},
+    {t:"腎臓のレニン分泌を促進する刺激はどれか。",o:["血圧上昇","血圧低下・腎血流減少","高Na血症","高K血症"],a:1,e:"腎傍糸球体装置は血圧低下・腎血流減少・低Na時にレニンを分泌します。"},
+    {t:"排尿反射の中枢はどれか。",o:["大脳皮質","視床下部","仙髄（S2〜S4）","胸髄"],a:2,e:"排尿反射の中枢は仙髄S2〜S4にあります。大脳皮質は随意的に抑制・促進します。"},
+  ]},
+  {n:"体温調節",qs:[
+    {t:"体温放散の方法で安静時に最も多いのはどれか。",o:["発汗","輻射（放射）","伝導","対流"],a:1,e:"安静時の熱放散は輻射（放射）が最も多く約60%を占めます。"},
+    {t:"発熱時のふるえの目的はどれか。",o:["体温を下げる","筋収縮によって熱産生を増やす","発汗を促す","血管を拡張する"],a:1,e:"ふるえ（シバリング）は筋収縮による熱産生の増加が目的で、体温を上昇させます。"},
+    {t:"核心温度（深部体温）の測定部位として正しいのはどれか。",o:["腋窩","直腸・鼓膜・食道","皮膚表面","口腔"],a:1,e:"核心温度は直腸・鼓膜・食道・膀胱などで測定されます。"},
+    {t:"高体温と発熱の違いとして正しいのはどれか。",o:["発熱は体温調節機構が正常に機能している","高体温は体温調節機構が正常に機能している","両者に違いはない","発熱は外部からの熱で起こる"],a:0,e:"発熱はセットポイントが上昇した状態（調節機構が機能）、高体温は外部からの熱などでセットポイントを超えた状態です。"},
+    {t:"褐色脂肪組織の主な機能はどれか。",o:["エネルギーの貯蔵","熱産生（非ふるえ熱産生）","免疫機能","ホルモン産生"],a:1,e:"褐色脂肪組織はUCP-1を介して脂肪酸を熱に変換します。新生児で重要です。"},
+  ]},
+  {n:"内分泌系",qs:[
+    {t:"インスリンの主な作用はどれか。",o:["血糖値を上昇させる","グリコーゲン分解を促進する","血糖値を低下させる","脂肪分解を促進する"],a:2,e:"インスリン（膵β細胞）はグルコースの細胞内取り込み・グリコーゲン合成を促進し血糖値を低下させます。"},
+    {t:"甲状腺ホルモンの主な作用はどれか。",o:["基礎代謝を低下させる","基礎代謝を亢進させる","カルシウム代謝を調節する","Naの再吸収を促進する"],a:1,e:"甲状腺ホルモン（T3・T4）は基礎代謝亢進・心拍増加・成長・発達促進などの作用があります。"},
+    {t:"副腎皮質から分泌されるホルモンはどれか。",o:["アドレナリン","コルチゾール","グルカゴン","成長ホルモン"],a:1,e:"副腎皮質からはコルチゾール・アルドステロン・性ホルモンが分泌されます。"},
+    {t:"血中コルチゾール上昇時の負のフィードバックとして正しいのはどれか。",o:["ACTH分泌が増加する","ACTH分泌が抑制される","CRH分泌が増加する","TSH分泌が増加する"],a:1,e:"コルチゾールが上昇すると視床下部・下垂体へのフィードバックでCRH・ACTH分泌が抑制されます。"},
+    {t:"PTH（副甲状腺ホルモン）の主な作用はどれか。",o:["血中カルシウムを低下させる","血中カルシウムを上昇させる","血糖値を上昇させる","Na再吸収を促進する"],a:1,e:"PTHは骨吸収促進・腎でのCa再吸収増加・ビタミンD活性化を介して血中Ca濃度を上昇させます。"},
+  ]},
+  {n:"生殖と老化",qs:[
+    {t:"排卵後に黄体から主に分泌されるホルモンはどれか。",o:["エストロゲン","プロゲステロン","LH","FSH"],a:1,e:"排卵後の黄体からはプロゲステロンが主に分泌され、子宮内膜を分泌期に変化させます。"},
+    {t:"精子の形成が行われる場所はどれか。",o:["精巣上体","前立腺","精巣の精細管","精嚢"],a:2,e:"精子発生は精巣の精細管で行われます。精巣上体で成熟・貯蔵されます。"},
+    {t:"閉経の主な原因はどれか。",o:["子宮機能の低下","卵胞の枯渇によるエストロゲン低下","下垂体機能の低下","副腎機能の低下"],a:1,e:"閉経は卵巣内の卵胞が枯渇しエストロゲン分泌が著しく低下することで起こります。"},
+    {t:"加齢に伴う生理的変化として正しいのはどれか。",o:["肺活量の増大","筋肉量の増加","腎機能（GFR）の低下","骨密度の増加"],a:2,e:"加齢に伴い腎機能（糸球体ろ過量）は低下します。肺活量・筋肉量・骨密度も低下します。"},
+    {t:"受精が行われる通常の場所はどれか。",o:["子宮腔","子宮頸部","卵管膨大部","腹腔"],a:2,e:"受精は通常、卵管の膨大部（卵管壺腹部）で行われます。"},
+  ]},
+];
+
+let cur=null,cq=0,tot=0,cor=0,done=false,stats={};
+
+function rGrid(){
+  document.getElementById('unit-grid').innerHTML=U.map((u,i)=>{
+    const s=stats[i];
+    let cl='u-btn';
+    if(cur===i)cl+=' active';
+    else if(s&&s.d){cl+=s.r>=70?' done-high':' done-low';}
+    const badge=s&&s.d?' '+s.r+'%':'';
+    return'<button class="'+cl+'" onclick="sel('+i+')">'+'<span class="u-num">単元'+(i+1)+'</span>'+u.n+badge+'</button>';
+  }).join('');
+}
+
+function sel(i){cur=i;cq=0;done=false;rGrid();rQ();}
+
+function rQ(){
+  const area=document.getElementById('qa');
+  if(cur===null){area.innerHTML='<div class="empty">上の単元ボタンから学習したい単元を選んでください。<br>全16単元・各5問、合計80問に対応しています。</div>';return;}
+  const u=U[cur];
+  if(cq>=u.qs.length){
+    const s=stats[cur];
+    const p=s.r;
+    const msg=p>=80?'よく理解できています。次の単元へ進みましょう。':p>=60?'もう少しです。間違えた問題を復習しましょう。':'基礎から丁寧に復習しましょう。';
+    area.innerHTML='<div class="res-card"><div class="res-score">'+p+'%</div><div class="res-sub">'+s.c+'/'+s.t+'問正解 — '+u.n+'</div><p class="res-msg">'+msg+'</p><div class="res-btns"><button class="res-btn" onclick="retry()">この単元をもう一度</button><button class="res-btn" onclick="nxt()">次の単元へ →</button></div></div>';
+    return;
+  }
+  const q=u.qs[cq];
+  const L=['A','B','C','D'];
+  document.getElementById('prog').style.width=(cq/u.qs.length*100)+'%';
+  area.innerHTML='<div class="q-card"><span class="u-tag">'+u.n+'</span><div class="q-meta">問題 '+(cq+1)+' / '+u.qs.length+'</div><div class="q-text">'+q.t+'</div><div class="opts">'+q.o.map((o,i)=>'<button class="o-btn" onclick="ans('+i+')"><span class="o-lbl">'+L[i]+'</span><span>'+o+'</span></button>').join('')+'</div><div id="fb" style="display:none"></div><button class="nxt-btn" id="nb" style="display:none" onclick="go()">'+(cq<u.qs.length-1?'次の問題へ →':'結果を見る →')+'</button></div>';
+}
+
+function ans(i){
+  if(done)return;done=true;
+  const q=U[cur].qs[cq];
+  document.querySelectorAll('.o-btn').forEach((b,idx)=>{
+    b.disabled=true;
+    if(idx===q.a)b.classList.add(i===q.a?'correct':'reveal');
+    else if(idx===i)b.classList.add('wrong');
+  });
+  const ok=i===q.a;
+  if(ok)cor++;tot++;
+  if(!stats[cur])stats[cur]={c:0,t:0,d:false,r:0};
+  if(ok)stats[cur].c++;
+  stats[cur].t++;
+  stats[cur].r=Math.round(stats[cur].c/stats[cur].t*100);
+  updM();
+  const fb=document.getElementById('fb');
+  fb.style.display='block';
+  fb.className='fb '+(ok?'correct':'wrong');
+  fb.innerHTML='<div class="fb-t">'+(ok?'正解':'不正解')+'</div>'+q.e;
+  document.getElementById('nb').style.display='block';
+}
+
+function go(){cq++;done=false;if(cq>=U[cur].qs.length){stats[cur].d=true;rGrid();}rQ();}
+function retry(){cq=0;done=false;stats[cur]={c:0,t:0,d:false,r:0};rGrid();rQ();}
+function nxt(){sel((cur+1)%U.length);}
+
+function updM(){
+  document.getElementById('m-c').textContent=cor;
+  document.getElementById('m-t').textContent=tot;
+  document.getElementById('m-r').textContent=tot>0?Math.round(cor/tot*100)+'%':'—';
+}
+
+rGrid();rQ();
+</script>
+</body>
+</html>
